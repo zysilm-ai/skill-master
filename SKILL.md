@@ -1,6 +1,6 @@
 ---
 name: skill-master
-description: "Intelligent skill orchestrator that automatically finds, creates, executes, and improves skills. When you need to accomplish a task, this skill searches for existing skills (internal, GitHub via MCP, web), creates new skills if none found, executes them, and reviews execution to improve skills based on actual usage. Use when you want automated skill discovery and continuous improvement."
+description: "Intelligent skill orchestrator that automatically finds, creates, executes, and improves skills. When you need to accomplish a task, this skill searches for existing skills (internal, GitHub via MCP, web), creates new skills if none found, executes them, and reviews execution to improve skills based on actual usage. Also handles feedback about skill-generated outputs - if you want to fix/adjust an output AND improve the skill that created it, invoke this with your feedback. Use when you want automated skill discovery, continuous improvement, or to provide feedback on previous skill outputs."
 allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Task, Skill, AskUserQuestion, TodoWrite
 ---
 
@@ -15,6 +15,11 @@ When invoked with a task, this skill:
 2. **Creates** a new skill if none found (after deep research)
 3. **Invokes** the skill (using Skill tool) to complete the user's task
 4. **Reviews** the execution and improves the skill if needed
+
+When invoked with feedback about a previous output:
+5. **Fixes** the output according to user's request
+6. **Links** feedback to the skill via state tracking
+7. **Improves** the skill based on the feedback
 
 ## Workflow
 
@@ -208,6 +213,89 @@ Report final status:
 
 ---
 
+### Phase 7: Feedback Handling (User-Triggered)
+
+**Trigger**: User explicitly invokes skill-master with feedback about a previous output.
+
+Examples:
+- `/skill-master please fix the report, the analysis is too shallow`
+- `Invoke skill-master to adjust the documentation and add more examples`
+
+#### Step 7.1: Fix the Output First
+
+Address the user's immediate request:
+1. Identify the output file(s) mentioned
+2. Make the requested changes/improvements
+3. Confirm changes with user
+
+#### Step 7.2: Check for State Tracking
+
+Look for `.skill-master-state.json` in the working directory:
+
+```
+Read: .skill-master-state.json
+```
+
+**If state file exists and matches the output:**
+- Proceed to Step 7.3
+
+**If no state file or no match:**
+- Report: "Output fixed. No linked skill found for improvement."
+- Done.
+
+#### Step 7.3: Link Feedback to Skill
+
+From state file, identify:
+- `skill_name`: Which skill produced this output
+- `skill_path`: Where the skill is stored
+- `outputs`: Verify the file user mentioned is in the outputs list
+
+#### Step 7.4: Trigger Review with Feedback Context
+
+Use Task tool to spawn fresh agent for review:
+
+```
+Task: "Review skill based on user feedback"
+
+The user requested changes to output produced by this skill.
+This feedback indicates the skill needs improvement.
+
+## The Skill
+<paste SKILL.md content>
+
+## User Feedback
+<user's feedback request>
+
+## Changes Made
+<what was changed to fix the output>
+
+## Your Task
+Determine how to improve the skill so future executions
+produce better output without needing these adjustments.
+
+## Output
+List specific improvements:
+- WHERE: <which part of skill>
+- ISSUE: <what was missing/wrong>
+- SUGGESTION: <concrete change>
+```
+
+#### Step 7.5: Apply Improvements
+
+Follow [references/skill-improve.md](references/skill-improve.md) to apply the suggested improvements.
+
+Report:
+```
+## Feedback Processed
+
+- **Output Fixed**: Yes
+- **Linked Skill**: <skill name>
+- **Skill Improved**: Yes / No (if external)
+- **Changes**: <summary of skill improvements>
+```
+
+---
+
 ## State Management
 
 Track workflow state by writing to `.skill-master-state.json`:
@@ -215,17 +303,28 @@ Track workflow state by writing to `.skill-master-state.json`:
 ```json
 {
   "request": "original user request",
-  "state": "SEARCH | CREATE | EXECUTE | REVIEW | COMPLETE",
+  "state": "SEARCH | CREATE | EXECUTE | REVIEW | COMPLETE | FEEDBACK",
   "skill_found": true/false,
   "skill_name": "name",
   "skill_path": "path",
   "storage_location": "local | global",
+  "outputs": ["path/to/output1.md", "path/to/output2.pdf"],
   "improvements_needed": true/false,
   "improvements_applied": true/false
 }
 ```
 
 Update this file as you progress through phases.
+
+### Output Tracking
+
+During Phase 4 (Execution), track all files created by the skill:
+
+1. **Before execution**: Note existing files in output directories
+2. **After execution**: Identify new/modified files
+3. **Update state**: Add file paths to `outputs` array
+
+This enables Phase 7 (Feedback Handling) to link user feedback to the skill that produced the output.
 
 ---
 

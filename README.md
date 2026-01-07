@@ -88,6 +88,29 @@ Skill Master will:
 4. Execute the skill to complete your task
 5. Review and offer improvements based on execution
 
+### Feedback & Improvement
+
+If you later find issues with the output and want to **both fix the output AND improve the skill**, invoke Skill Master again with your feedback:
+
+Using command:
+```
+/skill-master please fix the business plan, the financial projections section needs more detail
+```
+
+Using natural language:
+```
+Invoke skill-master to adjust the market analysis - add competitor pricing data and export to PDF
+```
+
+```
+Ask skill-master to improve the report, the executive summary is too long
+```
+
+Skill Master will:
+1. Fix your output immediately
+2. Link the feedback to the skill that created it
+3. Improve the skill so future executions are better
+
 ---
 
 ## How It Works
@@ -131,6 +154,91 @@ The review phase is **empirical, not theoretical**:
 - User decides whether to apply improvements
 
 This ensures skills improve based on **real issues**, not arbitrary criteria.
+
+---
+
+## Feedback & Adjustment
+
+### The Problem
+
+After a skill completes successfully, you might find issues with the output later:
+- Content quality not meeting expectations
+- Missing sections or details
+- Format needs adjustment (e.g., export to PDF)
+
+The skill executed perfectly (no divergences), but the **output needs improvement**.
+
+### The Solution
+
+Manually invoke Skill Master with your feedback to **both fix the output AND improve the skill**:
+
+```
+/skill-master please fix the market report, the competitive analysis section is too shallow
+```
+
+Or:
+
+```
+Invoke skill-master to adjust the documentation - add more code examples and export to PDF
+```
+
+### How It Works
+
+```
+User feedback request
+        │
+        ▼
+┌─────────────────────┐
+│   FIX THE OUTPUT    │ ◄── First, make the changes user requested
+└─────────────────────┘
+        │
+        ▼
+┌─────────────────────┐
+│  CHECK STATE FILE   │ ◄── Look for .skill-master-state.json
+└─────────────────────┘
+        │
+        ├── State exists ──────────────────┐
+        │                                  ▼
+        │                         ┌─────────────────────┐
+        │                         │  REVIEW & IMPROVE   │
+        │                         │  - Link to skill    │
+        │                         │  - Capture feedback │
+        │                         │  - Update skill     │
+        │                         └─────────────────────┘
+        │
+        └── No state ─────────────┐
+                                  ▼
+                            ┌───────────┐
+                            │   Done    │
+                            │ (fix only)│
+                            └───────────┘
+```
+
+### Why Manual Trigger?
+
+Skills are **stateless** - they don't have access to conversation history. When you say "fix the report", skill-master doesn't automatically know:
+- Which skill created it
+- What the original execution looked like
+
+By explicitly invoking `/skill-master`, you signal that:
+1. This relates to a skill-generated output
+2. You want the skill improved, not just the output fixed
+
+### State Tracking
+
+Skill Master maintains execution state in `.skill-master-state.json`:
+
+```json
+{
+  "request": "create a market analysis report",
+  "skill_name": "market-research-reports",
+  "skill_path": ".claude/skills/market-research-reports",
+  "outputs": ["./reports/market-analysis.md"],
+  "state": "COMPLETE"
+}
+```
+
+This enables linking your feedback to the skill that produced the output.
 
 ---
 
