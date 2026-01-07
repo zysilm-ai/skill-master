@@ -1,7 +1,7 @@
 {
   "name": "skill-master",
   "owner": {
-    "name": "skill-master"
+    "name": "zysilm-ai"
   },
   "metadata": {
     "description": "Skill orchestration and continuous improvement system for Claude Code",
@@ -13,7 +13,13 @@
       "source": "./",
       "description": "Intelligent skill orchestrator that searches, creates, executes, and improves skills automatically",
       "version": "1.0.0",
-      "keywords": ["skills", "orchestration", "automation", "improvement"],
+      "author": {
+        "name": "zysilm-ai"
+      },
+      "homepage": "https://github.com/zysilm-ai/skill-master",
+      "repository": "https://github.com/zysilm-ai/skill-master",
+      "license": "MIT",
+      "keywords": ["skills", "orchestration", "automation", "improvement", "turing-machine", "self-improving"],
       "category": "productivity"
     }
   ]
