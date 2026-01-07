@@ -1,10 +1,10 @@
 ---
-name: skill-automata
+name: skill-master
 description: "Intelligent skill orchestrator that automatically finds, creates, executes, and improves skills. When you need to accomplish a task, this skill searches for existing skills (internal, GitHub via MCP, web), creates new skills if none found, executes them, and reviews execution to improve skills based on actual usage. Use when you want automated skill discovery and continuous improvement."
-allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Task, AskUserQuestion, TodoWrite
+allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Task, Skill, AskUserQuestion, TodoWrite
 ---
 
-# Skill Automata
+# Skill Master
 
 An intelligent orchestrator that automates the entire skill lifecycle: discovery, creation, execution, and improvement.
 
@@ -13,7 +13,7 @@ An intelligent orchestrator that automates the entire skill lifecycle: discovery
 When invoked with a task, this skill:
 1. **Searches** for existing skills that can handle the task
 2. **Creates** a new skill if none found (after deep research)
-3. **Executes** the skill to complete the user's task
+3. **Invokes** the skill (using Skill tool) to complete the user's task
 4. **Reviews** the execution and improves the skill if needed
 
 ## Workflow
@@ -88,24 +88,37 @@ Steps:
 
 ### Phase 4: Skill Execution
 
-**Goal**: Execute the skill to complete the user's original task.
+**Goal**: Invoke the skill to complete the user's original task.
 
-#### Step 4.1: Load the Skill
+**CRITICAL**: You MUST invoke the found/created skill using the Skill tool. Do NOT manually follow the instructions - the skill must be triggered as an independent execution.
 
-Read the skill's SKILL.md:
+#### Step 4.1: Invoke the Skill
+
+Use the Skill tool to trigger the skill:
 ```
-Read: <skill_path>/SKILL.md
+Skill: <skill-name>
+args: <user's original request>
 ```
 
-#### Step 4.2: Execute
+Example:
+```
+Skill: market-research-reports
+args: "Create a market analysis for electric vehicles in Europe"
+```
 
-Follow the skill's instructions to complete the user's task.
+The Skill tool will:
+1. Load the skill's SKILL.md
+2. Execute the skill's workflow
+3. Complete the user's task
+4. Return control when finished
 
-**Important**: Execute naturally. Don't force adherence to the skill if something doesn't fit - adapt as needed. These adaptations become improvement signals.
+#### Step 4.2: Capture Execution Memory
 
-#### Step 4.3: Complete the Task
+After the skill completes, the conversation now contains "execution memory" - the full record of what happened during skill execution. This memory is used in Phase 5 for review.
 
-Deliver the output to the user.
+#### Step 4.3: Verify Completion
+
+Confirm the skill delivered the expected output to the user.
 
 ---
 
@@ -188,7 +201,7 @@ Report final status:
 
 ## State Management
 
-Track workflow state by writing to `.skill-automata-state.json`:
+Track workflow state by writing to `.skill-master-state.json`:
 
 ```json
 {
