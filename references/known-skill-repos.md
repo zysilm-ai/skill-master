@@ -23,24 +23,31 @@ Domain-specific skill repositories.
 
 ---
 
-## MCP Search Patterns
+## WebSearch Patterns
 
 ### Stage 1: Search Tier 1 repos first
 ```
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:anthropics/skills <keywords>"
+WebSearch: site:github.com/anthropics/skills SKILL.md <keywords>
 
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:K-Dense-AI/claude-scientific-skills <keywords>"
+WebSearch: site:github.com/K-Dense-AI/claude-scientific-skills SKILL.md <keywords>
 
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:ComposioHQ/awesome-claude-skills <keywords>"
+WebSearch: site:github.com/ComposioHQ/awesome-claude-skills SKILL.md <keywords>
 ```
 
 ### Stage 2: Broader GitHub search
 ```
-mcp__github__search_code:
-  query: "filename:SKILL.md <keywords>"
+WebSearch: site:github.com SKILL.md "allowed-tools" <keywords>
+```
+
+### Stage 3: Fetch raw content
+Once a skill URL is found, convert to raw URL and fetch:
+```
+# Convert: github.com/owner/repo/blob/main/path/SKILL.md
+# To:      raw.githubusercontent.com/owner/repo/main/path/SKILL.md
+
+WebFetch:
+  url: https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md
+  prompt: "Return the complete raw content of this SKILL.md file exactly as-is"
 ```
 
 ---

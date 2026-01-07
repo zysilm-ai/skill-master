@@ -2,18 +2,13 @@
 
 This document describes how to search for existing skills across multiple sources.
 
-## Prerequisites
-
-**GitHub MCP Required**: This workflow requires GitHub MCP for reliable skill discovery.
-See Phase 0 in SKILL.md for setup instructions.
-
 ---
 
 ## Search Order
 
 Search in this priority order:
 1. **Internal/Local Skills** (already installed)
-2. **GitHub via MCP** (multi-stage, tiered search)
+2. **GitHub via WebSearch + WebFetch** (multi-stage, tiered search)
 3. **Web** (non-GitHub sources only)
 
 Stop as soon as a suitable skill is found.
@@ -52,10 +47,22 @@ For each SKILL.md found:
 
 ---
 
-## Step 2: Search GitHub (MCP Only)
+## Step 2: Search GitHub (WebSearch + WebFetch)
 
-**Important**: Use GitHub MCP exclusively. Do NOT use WebSearch for GitHub.
-WebSearch returns summaries, not raw content - unusable for skill retrieval.
+### Why WebSearch + WebFetch?
+
+WebSearch alone returns summaries, which lose skill details needed for matching.
+The solution: use WebSearch to **discover** skills, then WebFetch with raw GitHub URLs to **retrieve full content**.
+
+### URL Transformation
+
+GitHub blob URLs must be converted to raw URLs for content retrieval:
+
+```
+github.com/{owner}/{repo}/blob/{branch}/{path}/SKILL.md
+                    ↓
+raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}/SKILL.md
+```
 
 ### 2.1 Stage 1: Search Known Skill Collections
 
@@ -63,15 +70,15 @@ Search high-quality, curated repositories first.
 See [known-skill-repos.md](known-skill-repos.md) for the full list.
 
 **Tier 1 (Official/Verified):**
+
 ```
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:anthropics/skills <keywords>"
+WebSearch: site:github.com/anthropics/skills SKILL.md <keywords>
 
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:K-Dense-AI/claude-scientific-skills <keywords>"
+WebSearch: site:github.com/anthropics/claude-code-skills SKILL.md <keywords>
 
-mcp__github__search_code:
-  query: "filename:SKILL.md repo:ComposioHQ/awesome-claude-skills <keywords>"
+WebSearch: site:github.com/K-Dense-AI/claude-scientific-skills SKILL.md <keywords>
+
+WebSearch: site:github.com/ComposioHQ/awesome-claude-skills SKILL.md <keywords>
 ```
 
 ### 2.2 Stage 2: Broader GitHub Search
@@ -79,26 +86,33 @@ mcp__github__search_code:
 If no match in known repos, search all of GitHub:
 
 ```
-mcp__github__search_code:
-  query: "filename:SKILL.md <task keywords>"
+WebSearch: site:github.com SKILL.md "allowed-tools" <task keywords>
 
-mcp__github__search_code:
-  query: "filename:SKILL.md allowed-tools <domain keywords>"
+WebSearch: site:github.com SKILL.md "description:" <domain keywords>
 ```
 
 ### 2.3 Stage 3: Retrieve Full SKILL.md Content
 
-Once a promising skill is found, get the full content:
+Once a promising skill is found from search results, extract the URL and convert to raw format:
 
-**Primary: GitHub MCP**
+**Step 1: Parse search result URL**
 ```
-mcp__github__get_file_contents:
-  owner: <owner>
-  repo: <repo>
-  path: <path/to/SKILL.md>
+Found: github.com/owner/repo/blob/main/skills/market-research/SKILL.md
 ```
 
-**Fallback: Bash with curl** (if MCP get_file_contents fails)
+**Step 2: Convert to raw URL**
+```
+https://raw.githubusercontent.com/owner/repo/main/skills/market-research/SKILL.md
+```
+
+**Step 3: Fetch raw content**
+```
+WebFetch:
+  url: https://raw.githubusercontent.com/owner/repo/main/skills/market-research/SKILL.md
+  prompt: "Return the complete raw content of this SKILL.md file exactly as-is"
+```
+
+**Alternative: Use Bash with curl** (if WebFetch has issues)
 ```bash
 curl -sf https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md || \
 curl -s https://raw.githubusercontent.com/<owner>/<repo>/master/<path>/SKILL.md
@@ -107,7 +121,7 @@ curl -s https://raw.githubusercontent.com/<owner>/<repo>/master/<path>/SKILL.md
 ### 2.4 Evaluate GitHub Results
 
 For each skill found:
-1. Retrieve full SKILL.md content (use MCP or curl, NOT WebFetch)
+1. Retrieve full SKILL.md content via WebFetch or curl
 2. Verify valid frontmatter (name, description, allowed-tools)
 3. Check if description matches user's task
 4. Assess match confidence: High / Medium / Low
@@ -123,8 +137,7 @@ Use WebSearch only for non-GitHub sources (blogs, docs, other platforms):
 WebSearch: SKILL.md "allowed-tools" <task keywords> -site:github.com
 ```
 
-**Note**: WebSearch is unreliable for skill content retrieval.
-Use only to discover sources, then fetch content via other means.
+**Note**: For any skill found, attempt to get raw content via WebFetch.
 
 ---
 
@@ -189,7 +202,7 @@ When a skill is found on GitHub:
      -o .claude/skills/<skill-name>/SKILL.md
 
    # Download any additional files (references/, assets/, etc.)
-   # Use mcp__github__get_file_contents or curl for each file
+   # Use curl for each file
    ```
 
 3. Verify installation:
@@ -202,7 +215,8 @@ When a skill is found on GitHub:
 
 ## Notes
 
-- GitHub MCP is required - do not fall back to WebSearch for GitHub
+- WebSearch finds skills, WebFetch retrieves full content
+- Always convert GitHub blob URLs to raw.githubusercontent.com URLs
 - Prefer Tier 1 repos (anthropics/skills, K-Dense-AI) for quality
 - Always verify SKILL.md has valid frontmatter before using
 - If multiple skills match, present options to user ranked by:

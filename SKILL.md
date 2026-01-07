@@ -23,39 +23,6 @@ When invoked with feedback about a previous output:
 
 ## Workflow
 
-### Phase 0: Prerequisites
-
-**Goal**: Ensure GitHub MCP is available for reliable skill discovery.
-
-#### Step 0.1: Check GitHub MCP
-
-Test if GitHub MCP is configured:
-```
-mcp__github__search_code:
-  query: "filename:SKILL.md test"
-```
-
-#### Step 0.2: Handle MCP Status
-
-**If MCP available**: Proceed to Phase 1.
-
-**If MCP NOT available**: Guide user through setup:
-```
-GitHub MCP is required for reliable skill discovery.
-
-To set up GitHub MCP:
-1. Install: npx @anthropic-ai/claude-code-mcp add github
-2. Configure GitHub token if prompted
-3. Restart Claude Code
-
-Would you like me to help you set this up?
-```
-
-Use AskUserQuestion to let user choose:
-- "Set up now" → Guide through installation
-- "Skip GitHub search" → Proceed with local-only search
-- "Cancel" → Stop workflow
-
 ---
 
 ### Phase 1: Skill Discovery
@@ -75,25 +42,22 @@ Follow the search workflow in [references/skill-search.md](references/skill-sear
 
 Search order:
 1. **Internal skills**: Check `~/.claude/skills/` and `.claude/skills/`
-2. **GitHub via MCP** (multi-stage search):
+2. **GitHub via WebSearch + WebFetch** (multi-stage search):
    ```
    # Stage 1: Search known skill collections first (higher quality)
-   mcp__github__search_code:
-     query: "filename:SKILL.md repo:anthropics/skills <keywords>"
-     query: "filename:SKILL.md repo:K-Dense-AI/claude-scientific-skills <keywords>"
-     query: "filename:SKILL.md repo:ComposioHQ/awesome-claude-skills <keywords>"
+   WebSearch: site:github.com/anthropics/skills SKILL.md <keywords>
+   WebSearch: site:github.com/K-Dense-AI/claude-scientific-skills SKILL.md <keywords>
+   WebSearch: site:github.com/ComposioHQ/awesome-claude-skills SKILL.md <keywords>
 
    # Stage 2: Broader search
-   mcp__github__search_code:
-     query: "filename:SKILL.md <task keywords>"
+   WebSearch: site:github.com SKILL.md "allowed-tools" <task keywords>
 
-   # Stage 3: Get full content
-   mcp__github__get_file_contents:
-     owner: <owner>
-     repo: <repo>
-     path: <path/to/SKILL.md>
+   # Stage 3: Get full content (convert blob URL to raw URL)
+   WebFetch:
+     url: https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md
+     prompt: "Return the complete raw content of this SKILL.md file exactly as-is"
    ```
-3. **Web**: Use WebSearch only for non-GitHub sources
+3. **Web**: Use WebSearch for non-GitHub sources
 
 See [references/known-skill-repos.md](references/known-skill-repos.md) for curated skill sources.
 
