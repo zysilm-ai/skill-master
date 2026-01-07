@@ -35,7 +35,16 @@ Follow the search workflow in [references/skill-search.md](references/skill-sear
 
 Search order:
 1. **Internal skills**: Check `~/.claude/skills/` and `.claude/skills/`
-2. **GitHub**: Use GitHub MCP server to search repositories
+2. **GitHub**:
+   - **If GitHub MCP available**: Use `mcp__github__search_repositories` or `mcp__github__search_code`
+     ```
+     mcp__github__search_code:
+       query: "filename:SKILL.md <task keywords>"
+     ```
+   - **If MCP not available**: Fall back to WebSearch
+     ```
+     WebSearch: site:github.com "claude code" skill SKILL.md <task keywords>
+     ```
 3. **Web**: Use WebSearch for broader discovery
 
 #### Step 1.3: Evaluate Results
