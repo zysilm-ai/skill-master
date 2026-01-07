@@ -258,6 +258,19 @@ Contributions welcome! Areas for improvement:
 
 ---
 
+## Acknowledgements
+
+Skill Master is built for and relies on the following projects:
+
+| Project | Description | Link |
+|---------|-------------|------|
+| **Claude Code** | The AI coding agent platform this skill is built for | [Anthropic](https://claude.ai/claude-code) |
+| **Anthropic Skills** | Official skills repository (Tier 1 source) | [anthropics/skills](https://github.com/anthropics/skills) |
+| **K-Dense Scientific Skills** | 139 scientific skills including market research (Tier 1 source) | [K-Dense-AI/claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills) |
+| **Awesome Claude Skills** | Curated list of Claude skills (Tier 1 source) | [ComposioHQ/awesome-claude-skills](https://github.com/ComposioHQ/awesome-claude-skills) |
+
+---
+
 ## License
 
 MIT License - See [LICENSE](LICENSE)

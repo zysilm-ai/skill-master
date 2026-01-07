@@ -1,7 +1,7 @@
 ---
 name: skill-master
 description: "Intelligent skill orchestrator that automatically finds, creates, executes, and improves skills. When you need to accomplish a task, this skill searches for existing skills (internal, GitHub via MCP, web), creates new skills if none found, executes them, and reviews execution to improve skills based on actual usage. Also handles feedback about skill-generated outputs - if you want to fix/adjust an output AND improve the skill that created it, invoke this with your feedback. Use when you want automated skill discovery, continuous improvement, or to provide feedback on previous skill outputs."
-allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Task, Skill, AskUserQuestion, TodoWrite
+allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Task, Skill, AskUserQuestion, TodoWrite, Bash
 ---
 
 # Skill Master
@@ -23,6 +23,41 @@ When invoked with feedback about a previous output:
 
 ## Workflow
 
+### Phase 0: Prerequisites
+
+**Goal**: Ensure GitHub MCP is available for reliable skill discovery.
+
+#### Step 0.1: Check GitHub MCP
+
+Test if GitHub MCP is configured:
+```
+mcp__github__search_code:
+  query: "filename:SKILL.md test"
+```
+
+#### Step 0.2: Handle MCP Status
+
+**If MCP available**: Proceed to Phase 1.
+
+**If MCP NOT available**: Guide user through setup:
+```
+GitHub MCP is required for reliable skill discovery.
+
+To set up GitHub MCP:
+1. Install: npx @anthropic-ai/claude-code-mcp add github
+2. Configure GitHub token if prompted
+3. Restart Claude Code
+
+Would you like me to help you set this up?
+```
+
+Use AskUserQuestion to let user choose:
+- "Set up now" → Guide through installation
+- "Skip GitHub search" → Proceed with local-only search
+- "Cancel" → Stop workflow
+
+---
+
 ### Phase 1: Skill Discovery
 
 **Goal**: Find an existing skill that can handle the user's task.
@@ -40,17 +75,27 @@ Follow the search workflow in [references/skill-search.md](references/skill-sear
 
 Search order:
 1. **Internal skills**: Check `~/.claude/skills/` and `.claude/skills/`
-2. **GitHub**:
-   - **If GitHub MCP available**: Use `mcp__github__search_repositories` or `mcp__github__search_code`
-     ```
-     mcp__github__search_code:
-       query: "filename:SKILL.md <task keywords>"
-     ```
-   - **If MCP not available**: Fall back to WebSearch
-     ```
-     WebSearch: site:github.com "claude code" skill SKILL.md <task keywords>
-     ```
-3. **Web**: Use WebSearch for broader discovery
+2. **GitHub via MCP** (multi-stage search):
+   ```
+   # Stage 1: Search known skill collections first (higher quality)
+   mcp__github__search_code:
+     query: "filename:SKILL.md repo:anthropics/skills <keywords>"
+     query: "filename:SKILL.md repo:K-Dense-AI/claude-scientific-skills <keywords>"
+     query: "filename:SKILL.md repo:ComposioHQ/awesome-claude-skills <keywords>"
+
+   # Stage 2: Broader search
+   mcp__github__search_code:
+     query: "filename:SKILL.md <task keywords>"
+
+   # Stage 3: Get full content
+   mcp__github__get_file_contents:
+     owner: <owner>
+     repo: <repo>
+     path: <path/to/SKILL.md>
+   ```
+3. **Web**: Use WebSearch only for non-GitHub sources
+
+See [references/known-skill-repos.md](references/known-skill-repos.md) for curated skill sources.
 
 #### Step 1.3: Evaluate Results
 

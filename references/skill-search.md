@@ -2,12 +2,19 @@
 
 This document describes how to search for existing skills across multiple sources.
 
+## Prerequisites
+
+**GitHub MCP Required**: This workflow requires GitHub MCP for reliable skill discovery.
+See Phase 0 in SKILL.md for setup instructions.
+
+---
+
 ## Search Order
 
 Search in this priority order:
 1. **Internal/Local Skills** (already installed)
-2. **GitHub** (via MCP server)
-3. **Web** (broader search)
+2. **GitHub via MCP** (multi-stage, tiered search)
+3. **Web** (non-GitHub sources only)
 
 Stop as soon as a suitable skill is found.
 
@@ -45,52 +52,79 @@ For each SKILL.md found:
 
 ---
 
-## Step 2: Search GitHub
+## Step 2: Search GitHub (MCP Only)
 
-### 2.1 Using GitHub MCP Server (Preferred)
+**Important**: Use GitHub MCP exclusively. Do NOT use WebSearch for GitHub.
+WebSearch returns summaries, not raw content - unusable for skill retrieval.
 
-If GitHub MCP server is available, use it to search:
+### 2.1 Stage 1: Search Known Skill Collections
 
+Search high-quality, curated repositories first.
+See [known-skill-repos.md](known-skill-repos.md) for the full list.
+
+**Tier 1 (Official/Verified):**
 ```
-mcp__github__search_repositories:
-  query: "claude code skill SKILL.md <task keywords>"
+mcp__github__search_code:
+  query: "filename:SKILL.md repo:anthropics/skills <keywords>"
+
+mcp__github__search_code:
+  query: "filename:SKILL.md repo:K-Dense-AI/claude-scientific-skills <keywords>"
+
+mcp__github__search_code:
+  query: "filename:SKILL.md repo:ComposioHQ/awesome-claude-skills <keywords>"
 ```
 
-Or search for code:
+### 2.2 Stage 2: Broader GitHub Search
+
+If no match in known repos, search all of GitHub:
+
 ```
 mcp__github__search_code:
   query: "filename:SKILL.md <task keywords>"
+
+mcp__github__search_code:
+  query: "filename:SKILL.md allowed-tools <domain keywords>"
 ```
 
-### 2.2 Using WebSearch (Fallback)
+### 2.3 Stage 3: Retrieve Full SKILL.md Content
 
-If MCP not available, use WebSearch:
+Once a promising skill is found, get the full content:
 
+**Primary: GitHub MCP**
 ```
-WebSearch: site:github.com "claude code" skill SKILL.md <task keywords>
-WebSearch: site:github.com "allowed-tools" SKILL.md <domain keywords>
+mcp__github__get_file_contents:
+  owner: <owner>
+  repo: <repo>
+  path: <path/to/SKILL.md>
 ```
 
-### 2.3 Evaluate GitHub Results
+**Fallback: Bash with curl** (if MCP get_file_contents fails)
+```bash
+curl -sf https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md || \
+curl -s https://raw.githubusercontent.com/<owner>/<repo>/master/<path>/SKILL.md
+```
 
-For promising repositories:
-1. Use WebFetch or MCP to read the repository's SKILL.md
-2. Check if description matches user's task
-3. Verify it's a valid Claude Code skill (has frontmatter with name, description)
-4. Note the repository URL for potential installation
+### 2.4 Evaluate GitHub Results
+
+For each skill found:
+1. Retrieve full SKILL.md content (use MCP or curl, NOT WebFetch)
+2. Verify valid frontmatter (name, description, allowed-tools)
+3. Check if description matches user's task
+4. Assess match confidence: High / Medium / Low
+5. Note repository URL for installation
 
 ---
 
-## Step 3: Search Web Broadly
+## Step 3: Search Web (Non-GitHub Only)
 
-If GitHub search yields nothing:
+Use WebSearch only for non-GitHub sources (blogs, docs, other platforms):
 
 ```
-WebSearch: "claude code skill" <task keywords>
-WebSearch: claude code plugin <domain> <task>
+WebSearch: SKILL.md "allowed-tools" <task keywords> -site:github.com
 ```
 
-Evaluate any results found similarly to GitHub.
+**Note**: WebSearch is unreliable for skill content retrieval.
+Use only to discover sources, then fetch content via other means.
 
 ---
 
@@ -107,7 +141,8 @@ Return search results in this format:
 
 **If Yes:**
 - Name: <skill name>
-- Location: <path or URL>
+- Repository: <owner/repo>
+- Path: <path/to/SKILL.md>
 - Description: <from SKILL.md>
 - Match Confidence: High / Medium / Low
 
@@ -144,19 +179,33 @@ When a skill is found on GitHub:
 
 1. Ask user for storage location (local vs global)
 
-2. Clone or download the skill:
-   - For LOCAL: Save to `.claude/skills/<skill-name>/`
-   - For GLOBAL: Save to `~/.claude/skills/<skill-name>/`
+2. Download the skill directory:
+   ```bash
+   # Create skill directory
+   mkdir -p .claude/skills/<skill-name>
+
+   # Download SKILL.md
+   curl -s https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md \
+     -o .claude/skills/<skill-name>/SKILL.md
+
+   # Download any additional files (references/, assets/, etc.)
+   # Use mcp__github__get_file_contents or curl for each file
+   ```
 
 3. Verify installation:
    - Read the installed SKILL.md
    - Confirm it's valid
 
+4. Create source.md for provenance tracking (see SKILL.md Phase 2)
+
 ---
 
 ## Notes
 
-- Prefer internal skills (already vetted)
-- GitHub skills from known authors are more trustworthy
+- GitHub MCP is required - do not fall back to WebSearch for GitHub
+- Prefer Tier 1 repos (anthropics/skills, K-Dense-AI) for quality
 - Always verify SKILL.md has valid frontmatter before using
-- If multiple skills match, present options to user
+- If multiple skills match, present options to user ranked by:
+  1. Match confidence
+  2. Repository tier (Tier 1 > Tier 2 > unranked)
+  3. License permissiveness
