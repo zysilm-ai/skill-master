@@ -264,14 +264,3 @@ MIT License - See [LICENSE](LICENSE)
 
 ---
 
-## Acknowledgments
-
-- [Claude Code](https://claude.ai/code) - AI coding assistant
-- [Anthropic](https://anthropic.com) - For the Claude model
-- Alan Turing - For the theoretical foundation
-
----
-
-<p align="center">
-  <em>Skills are the programs that make agents Turing-complete.</em>
-</p>
