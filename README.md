@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="#overview">Overview</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#usage">Usage</a> •
   <a href="#how-it-works">How It Works</a> •
 </p>
 
@@ -48,24 +48,6 @@ The system operates as two nested Turing machines:
 The review is **self-limiting**: if a skill executes perfectly, no improvement is needed. Skills converge toward optimal instructions through real usage.
 
 ---
-
-## Quick Start
-
-### Installation
-
-Register the skill marketplace in Claude Code:
-
-```bash
-/plugin marketplace add zysilm-ai/skill-master
-```
-
-Or for local installation, clone and register:
-
-```bash
-git clone https://github.com/zysilm-ai/skill-master.git
-cd skill-master
-/plugin marketplace add ./
-```
 
 ### Usage
 
