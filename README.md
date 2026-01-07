@@ -10,8 +10,6 @@
   <a href="#overview">Overview</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#how-it-works">How It Works</a> •
-  <a href="#the-turing-machine-parallel">Philosophy</a> •
-  <a href="#skills-included">Skills</a>
 </p>
 
 ---
