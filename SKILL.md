@@ -38,36 +38,45 @@ Identify from the user's request:
 
 #### Step 1.2: Search for Skills
 
-Follow the search workflow in [references/skill-search.md](references/skill-search.md).
+**MUST follow the complete search workflow in [references/skill-search.md](references/skill-search.md).**
 
-Search order:
-1. **Internal skills**: Check `~/.claude/skills/` and `.claude/skills/`
-2. **GitHub via WebSearch + WebFetch** (multi-stage search):
-   ```
-   # Stage 1: Search known skill collections first (higher quality)
-   WebSearch: site:github.com/anthropics/skills SKILL.md <keywords>
-   WebSearch: site:github.com/K-Dense-AI/claude-scientific-skills SKILL.md <keywords>
-   WebSearch: site:github.com/ComposioHQ/awesome-claude-skills SKILL.md <keywords>
+Copy and track overall search progress:
+```
+Search Phase Progress:
+- [ ] Step 1: Internal skills searched
+- [ ] Step 2.1: ALL known GitHub repos searched (anthropics, K-Dense-AI, ComposioHQ)
+- [ ] Step 2.2: Known repos enumerated (if 2.1 had no matches)
+- [ ] Step 2.3: Broader GitHub search (only after 2.1+2.2 exhausted)
+- [ ] Step 3: Web search (only after GitHub exhausted)
+```
 
-   # Stage 2: Broader search
-   WebSearch: site:github.com SKILL.md "allowed-tools" <task keywords>
+**CRITICAL**: MUST complete ALL searches in each step before proceeding to next step.
 
-   # Stage 3: Get full content (convert blob URL to raw URL)
-   WebFetch:
-     url: https://raw.githubusercontent.com/<owner>/<repo>/main/<path>/SKILL.md
-     prompt: "Return the complete raw content of this SKILL.md file exactly as-is"
-   ```
-3. **Web**: Use WebSearch for non-GitHub sources
+Search order - execute in sequence:
+1. **Internal skills**: MUST check both `~/.claude/skills/` and `.claude/skills/`
+2. **GitHub known repos**: MUST search ALL three repos before broader search:
+   - `site:github.com/anthropics/skills SKILL.md <keywords>`
+   - `site:github.com/K-Dense-AI/claude-scientific-skills SKILL.md <keywords>`
+   - `site:github.com/ComposioHQ/awesome-claude-skills SKILL.md <keywords>`
+3. **GitHub enumeration**: MUST enumerate repo contents if searches return no match
+4. **GitHub broader**: Only after known repos exhausted
+5. **Web**: Only after GitHub exhausted
 
 See [references/known-skill-repos.md](references/known-skill-repos.md) for curated skill sources.
 
 #### Step 1.3: Evaluate Results
 
+**Validation gate before concluding search:**
+- [ ] All internal locations checked
+- [ ] All known GitHub repos searched
+- [ ] All known repos enumerated (if no WebSearch matches)
+- [ ] Results documented for each source
+
 **If skill found:**
 - Present the skill to user with description
 - Proceed to Phase 2 (Storage Confirmation)
 
-**If NO skill found:**
+**If NO skill found (only after ALL searches complete):**
 - Inform user: "No existing skill found. I'll research and create one."
 - Proceed to Phase 3 (Skill Creation)
 
