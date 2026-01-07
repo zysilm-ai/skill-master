@@ -83,6 +83,31 @@ Where should this skill be stored?
 
 Remember the choice for later use.
 
+#### Step 2.1: Source Tracking (External Skills Only)
+
+**CRITICAL**: When storing a skill found from an external source (GitHub, web), you MUST create a `source.md` file alongside the SKILL.md to track provenance.
+
+Create `source.md` in the skill directory with:
+
+```markdown
+# Source
+
+- **Origin**: <GitHub | Web | MCP Marketplace>
+- **URL**: <original URL where skill was found>
+- **Repository**: <owner/repo if GitHub>
+- **Author**: <original author if known>
+- **Retrieved**: <date skill was fetched>
+- **License**: <license if specified>
+
+## Notes
+
+<Any relevant notes about the source, modifications made, etc.>
+```
+
+**Do NOT create source.md for:**
+- Skills created from scratch (Phase 3)
+- Skills already present locally
+
 ---
 
 ### Phase 3: Skill Creation (if not found)
@@ -307,6 +332,11 @@ Track workflow state by writing to `.skill-master-state.json`:
   "skill_found": true/false,
   "skill_name": "name",
   "skill_path": "path",
+  "skill_source": {
+    "origin": "internal | github | web | created",
+    "url": "original URL if external",
+    "retrieved": "date"
+  },
   "storage_location": "local | global",
   "outputs": ["path/to/output1.md", "path/to/output2.pdf"],
   "improvements_needed": true/false,
