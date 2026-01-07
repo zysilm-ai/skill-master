@@ -33,6 +33,10 @@ The system operates as two nested Turing machines:
 - **L2 (Agent):** Skill Master manages skills as a higher-level "tape"
 - The Agent TM executes via the LLM TM, achieving Turing-completeness at both levels
 
+<p align="center">
+  <img src="docs/fig1.png" alt="fig1" width="500">
+</p>
+
 ### What It Does
 
 1. **Search** - Finds existing skills (local, GitHub, web)
