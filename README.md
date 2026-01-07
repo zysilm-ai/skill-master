@@ -1,11 +1,9 @@
 <p align="center">
-  <img src="docs/architecture_v2.png" alt="Skill Master Architecture" width="700">
+  <img src="docs/logo.png" alt="Skill Master Architecture" width="200">
 </p>
 
-<h1 align="center">Skill Master</h1>
-
 <p align="center">
-  <strong>"LLM Agent + Natural Language is Turing Complete"</strong>
+  <strong>"Where Natural Language becomes Turing Complete"</strong>
 </p>
 
 <p align="center">
@@ -78,7 +76,7 @@ Simply invoke Skill Master with your task:
 Or let Claude Code auto-detect based on context:
 
 ```
-I need to create a comprehensive market analysis for renewable energy in Europe
+Invoke skill-master to create a comprehensive market analysis for renewable energy in Europe
 ```
 
 Skill Master will:
@@ -100,10 +98,6 @@ Using command:
 Using natural language:
 ```
 Invoke skill-master to adjust the market analysis - add competitor pricing data and export to PDF
-```
-
-```
-Ask skill-master to improve the report, the executive summary is too long
 ```
 
 Skill Master will:
@@ -157,9 +151,9 @@ This ensures skills improve based on **real issues**, not arbitrary criteria.
 
 ---
 
-## Feedback & Adjustment
+### Feedback & Adjustment
 
-### The Problem
+#### The Problem
 
 After a skill completes successfully, you might find issues with the output later:
 - Content quality not meeting expectations
@@ -168,7 +162,7 @@ After a skill completes successfully, you might find issues with the output late
 
 The skill executed perfectly (no divergences), but the **output needs improvement**.
 
-### The Solution
+#### The Solution
 
 Manually invoke Skill Master with your feedback to **both fix the output AND improve the skill**:
 
@@ -182,7 +176,7 @@ Or:
 Invoke skill-master to adjust the documentation - add more code examples and export to PDF
 ```
 
-### How It Works
+#### How It Works
 
 ```
 User feedback request
@@ -214,7 +208,7 @@ User feedback request
                             └───────────┘
 ```
 
-### Why Manual Trigger?
+#### Why Manual Trigger?
 
 Skills are **stateless** - they don't have access to conversation history. When you say "fix the report", skill-master doesn't automatically know:
 - Which skill created it
@@ -239,71 +233,6 @@ Skill Master maintains execution state in `.skill-master-state.json`:
 ```
 
 This enables linking your feedback to the skill that produced the output.
-
----
-
-## The Turing Machine Parallel
-
-### Philosophy
-
-Just as a Turing machine's computational power comes from its **table of instructions**, an AI agent's capability comes from its **skills**.
-
-Skill Master operates as the "head" of a higher-level Turing machine:
-
-| Turing Machine | Skill Master System |
-|----------------|---------------------|
-| **Tape** | Skill Repository (can be read, written, modified) |
-| **Head** | Skill Master (searches, creates, executes, improves) |
-| **State Register** | Conversation state |
-| **Instructions** | The skill-master workflow itself |
-
-### Why This Matters
-
-- **Self-Improving:** Skills get better through actual usage
-- **Self-Limiting:** Well-written skills stop needing improvements
-- **Composable:** Skills can invoke other skills
-- **Portable:** Skills work across projects and teams
-
----
-
-## Skills Included
-
-### skill-master
-The main orchestrator that manages the skill lifecycle.
-
-### business-plan-generator
-Creates comprehensive business plans with:
-- Executive summary
-- Market analysis
-- Competitive landscape
-- Financial projections
-- Implementation roadmap
-
----
-
-## Directory Structure
-
-```
-skill-master/
-├── .claude-plugin/
-│   ├── plugin.json          # Plugin metadata
-│   └── marketplace.json     # Marketplace config
-├── skills/
-│   ├── skill-master/
-│   │   ├── SKILL.md         # Main orchestrator
-│   │   └── references/
-│   │       ├── skill-search.md
-│   │       ├── skill-create.md
-│   │       ├── skill-review.md
-│   │       └── skill-improve.md
-│   └── business-plan-generator/
-│       └── SKILL.md
-├── docs/
-│   ├── architecture.md
-│   ├── architecture_v2.png
-│   └── generate_diagram.py
-└── README.md
-```
 
 ---
 
