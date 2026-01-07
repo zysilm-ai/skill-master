@@ -1,0 +1,20 @@
+{
+  "name": "skill-master",
+  "owner": {
+    "name": "skill-master"
+  },
+  "metadata": {
+    "description": "Skill orchestration and continuous improvement system for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "skill-master",
+      "source": "./",
+      "description": "Intelligent skill orchestrator that searches, creates, executes, and improves skills automatically",
+      "version": "1.0.0",
+      "keywords": ["skills", "orchestration", "automation", "improvement"],
+      "category": "productivity"
+    }
+  ]
+}

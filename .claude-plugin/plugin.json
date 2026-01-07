@@ -1,0 +1,8 @@
+{
+  "name": "skill-master",
+  "description": "Intelligent skill orchestrator - automatically finds, creates, executes, and improves Claude Code skills",
+  "version": "1.0.0",
+  "author": {
+    "name": "skill-master"
+  }
+}
