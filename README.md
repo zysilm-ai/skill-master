@@ -16,7 +16,7 @@
 
 ## Overview
 
-**Skill Master** is an intelligent skill orchestrator for Claude Code that automatically **finds**, **creates**, **executes**, and **improves** skills based on actual usage.
+**Skill Master** is an intelligent skill orchestrator for Claude Code that automatically **searches**, **creates**, **executes**, and **improves** skills based on actual usage.
 
 ### What It Does
 1. **Search** - Finds existing skills (local, GitHub, web)
