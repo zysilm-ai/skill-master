@@ -18,27 +18,7 @@
 
 **Skill Master** is an intelligent skill orchestrator for Claude Code that automatically **finds**, **creates**, **executes**, and **improves** skills based on actual usage.
 
-Inspired by the **Turing Machine**, Skill Master treats skills as a "tape" that can be read, written, and modified - creating a self-improving agent system.
-
-### Two Nested Turing Machines
-
-The system operates as two nested Turing machines:
-
-| Level | Tape | Head | Instructions |
-|-------|------|------|--------------|
-| **Agent TM** (L2) | Skill Repository | Skill Master | Search → Create → Execute → Review → Improve |
-| **LLM TM** (L1) | LLM Context | LLM Model | Training + Prompts |
-
-- **L1 (Foundation):** The LLM processes tokens in its context window
-- **L2 (Agent):** Skill Master manages skills as a higher-level "tape"
-- The Agent TM executes via the LLM TM, achieving Turing-completeness at both levels
-
-<p align="center">
-  <img src="docs/fig1.png" alt="fig1" width="500">
-</p>
-
 ### What It Does
-
 1. **Search** - Finds existing skills (local, GitHub, web)
 2. **Create** - Generates new skills through deep research when none exist
 3. **Execute** - Invokes the skill to complete your task
